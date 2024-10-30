@@ -2,33 +2,33 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const taskSlice = createSlice({
     name: 'task',
-    initialState:{
-        allTasks: [],
-        progress: 0,
-        review: 0,
-        completed:0,
+    initialState: {
+        columns: {
+            Progress: [],
+            Review: [],
+            Completed: []
+        },
+        progressCount: 0,
+        reviewCount: 0,
+        completedCount: 0,
     },
     reducers: {
-        addNewTask(state, action){
-            const newTask = action.payload
-            state.progress++
-            state.allTasks.push({
-                id: newTask.id,
-                description: newTask.description
-            })
+        addNewTask(state, action) {
+            const { column, task } = action.payload; 
+            state.columns[column].unshift(task);
+            state[`${column.toLowerCase()}Count`]++; 
         },
-        removeTask(state,action){
-            const id = action.payload
-            const existingItem = state.allTasks.find((task) => task.id == id)
-            if(existingItem){
-                state.allTasks = state.allTasks.filter(task => task.id !== id)
+        removeTask(state, action) {
+            const { column, id } = action.payload;
+            const existingItem = state.columns[column].find((task) => task.id === id);
+            if (existingItem) {
+                state.columns[column] = state.columns[column].filter(task => task.id !== id);
+                state[`${column.toLowerCase()}Count`]--;
             }
-            
         }
-
     }
-})
+});
 
-export const taskActions = taskSlice.actions
+export const taskActions = taskSlice.actions;
 
-export default taskSlice
+export default taskSlice;
