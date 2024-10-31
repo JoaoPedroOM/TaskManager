@@ -5,13 +5,14 @@ import { taskActions } from "../store/task-slice";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 
 const Card = ({ columnTitle }) => {
-  const tasks = useSelector((state) => state.task.columns[columnTitle]);
+  const tasks = useSelector((state) => state.task.columns?.[columnTitle] || []);
   const progressCount = useSelector((state) => state.task.progressCount);
   const reviewCount = useSelector((state) => state.task.reviewCount);
   const completedCount = useSelector((state) => state.task.completedCount);
   const dispatch = useDispatch();
   const [inputAddTask, setInputAddTask] = useState(false);
   const [taskDescription, setTaskDescription] = useState("");
+
 
   const getColorClass = () => {
     if (columnTitle === "Progress") {
