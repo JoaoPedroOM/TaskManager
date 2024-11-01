@@ -44,8 +44,14 @@ const Card = ({ columnTitle }) => {
     }
   }
 
+  function cancelTask() {
+    setInputAddTask(false);
+    setTaskDescription("");
+  }
+
+
   return (
-    <section className="w-full h-screen rounded-lg">
+    <section className="lg:w-full w-1/3 h-screen rounded-lg">
       <h2 className="font-titles text-[12px] lg:text-base text-[#d0cbc6] font-bold lg:m-5 m-1">
         <span
           className={`inline-block w-2 h-2 lg:w-3 lg:h-3 rounded-full mr-2 ${getColorClass()}`}
@@ -71,7 +77,7 @@ const Card = ({ columnTitle }) => {
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                     ref={provided.innerRef}
-                    className="w-full min-w-[70px] bg-[#1a1b1f] rounded-lg text-[#fff] py-3 px-[14px] mb-3"
+                    className="w-full text-wrap break-words text-[12px] lg:text-base min-w-[70px] bg-[#1a1b1f] rounded-lg text-[#fff] py-3 px-[14px] mb-3"
                   >
                     {task.description}
                   </section>
@@ -81,9 +87,9 @@ const Card = ({ columnTitle }) => {
             {provided.placeholder}
             
             {inputAddTask && (
-              <section className="w-full min-w-[70px] bg-[#1a1b1f] rounded-lg text-[#fff] py-3 px-[14px] mb-3">
+              <section className="w-full bg-[#1a1b1f] rounded-lg text-[#fff] py-3 lg:px-[14px] px-2 mb-3">
                 <textarea
-                  className="bg-transparent border-none outline-none focus:outline-none focus:bg-transparent w-full resize-none"
+                  className="bg-transparent text-[12px] lg:text-base border-none outline-none focus:outline-none focus:bg-transparent w-full resize-none"
                   rows={4}
                   placeholder="Descreva sua tarefa..."
                   value={taskDescription}
@@ -108,12 +114,20 @@ const Card = ({ columnTitle }) => {
             )}
 
             {inputAddTask && (
+              <div className="flex lg:flex-row lg:gap-2 flex-col">
               <button
-                className="mt-2 lg:px-4 lg:py-2 text-[12px] lg:text-base font-main w-full text-start bg-[#4caf50] text-white rounded p-1"
+                className="mt-2 lg:px-4 lg:py-2 text-[12px] lg:text-base font-main w-full  text-start bg-[#4caf50] text-white rounded p-1"
                 onClick={addTask}
               >
                 Salvar Tarefa
               </button>
+              <button
+                  className="mt-2 lg:px-4 lg:py-2 text-[12px] lg:text-base font-main w-full text-start bg-[#fac3c3] text-[#d94c4c] rounded p-1 cursor-pointer"
+                  onClick={cancelTask}
+                >
+                  Cancelar
+                </button>
+              </div>
             )}
           </section>
         )}

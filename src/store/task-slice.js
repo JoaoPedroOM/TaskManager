@@ -38,13 +38,13 @@ const taskSlice = createSlice({
       saveTasksToLocalStorage(state);
     },
     removeTask(state, action) {
-      const { column, id } = action.payload;
+      const { column, taskId } = action.payload;
       state.columns[column] = state.columns[column].filter(
-        (task) => task.id !== id
+        (task) => task.id !== taskId
       );
       state[`${column.toLowerCase()}Count`]--;
       saveTasksToLocalStorage(state);
-    },
+    },    
     moveTask(state, action) {
       const { sourceColumn, destinationColumn, sourceIndex, destinationIndex } = action.payload;
 
