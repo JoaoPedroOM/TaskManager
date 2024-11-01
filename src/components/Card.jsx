@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { taskActions } from "../store/task-slice";
-import { Draggable, Droppable } from "@hello-pangea/dnd";
+import { Droppable } from "@hello-pangea/dnd";
+import TaskList from "./TaskList"
 
 const Card = ({ columnTitle }) => {
   const tasks = useSelector((state) => state.task.columns?.[columnTitle] || []);
-  const progressCount = useSelector((state) => state.task.progressCount);
-  const reviewCount = useSelector((state) => state.task.reviewCount);
-  const completedCount = useSelector((state) => state.task.completedCount);
   const dispatch = useDispatch();
+
   const [inputAddTask, setInputAddTask] = useState(false);
   const [taskDescription, setTaskDescription] = useState("");
-
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingTaskDescription, setEditingTaskDescription] = useState("");
 
   const getColorClass = () => {
     if (columnTitle === "Progress") {
@@ -24,15 +24,7 @@ const Card = ({ columnTitle }) => {
     }
   };
 
-  const getTaskCount = () => {
-    if (columnTitle === "Progress") return progressCount;
-    if (columnTitle === "Review") return reviewCount;
-    if (columnTitle === "Completed") return completedCount;
-    return 0;
-  };
-
-  function addTask() {
-    setInputAddTask(true);
+  const addTask = () => {
     if (taskDescription.trim()) {
       const newTask = {
         id: Date.now(),
@@ -42,54 +34,33 @@ const Card = ({ columnTitle }) => {
       setTaskDescription("");
       setInputAddTask(false);
     }
-  }
+  };
 
-  function cancelTask() {
+  const cancelTask = () => {
     setInputAddTask(false);
     setTaskDescription("");
-  }
+  };
 
-  function deleteTask(taskId) {
-    dispatch(taskActions.removeTask({ column: columnTitle, taskId }));
-  }
-  
   return (
     <section className="lg:w-full w-1/3 h-screen rounded-lg">
       <h2 className="font-titles text-[12px] lg:text-base text-[#d0cbc6] font-bold lg:m-5 m-1">
-        <span
-          className={`inline-block w-2 h-2 lg:w-3 lg:h-3 rounded-full mr-2 ${getColorClass()}`}
-        ></span>
-        {columnTitle} ({getTaskCount()})
+        <span className={`inline-block w-2 h-2 lg:w-3 lg:h-3 rounded-full mr-2 ${getColorClass()}`}></span>
+        {columnTitle} ({tasks.length})
       </h2>
 
       <Droppable droppableId={columnTitle}>
         {(provided) => (
-          <section
-            className="p-1 h-full rounded"
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-          >
-            {tasks.map((task, index) => (
-              <Draggable
-                key={task.id}
-                draggableId={task.id.toString()}
-                index={index}
-              >
-                {(provided) => (
-                  <section
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    ref={provided.innerRef}
-                    className="w-full text-wrap break-words text-[12px] lg:text-base min-w-[70px] bg-[#1a1b1f] rounded-lg text-[#fff] py-3 px-[14px] mb-3"
-                    onDoubleClick={() => deleteTask(task.id)} 
-                  >
-                    {task.description}
-                  </section>
-                )}
-              </Draggable>
-            ))}
+          <section className="p-1 h-full rounded" ref={provided.innerRef} {...provided.droppableProps}>
+            <TaskList 
+              tasks={tasks} 
+              columnTitle={columnTitle} 
+              editingTaskId={editingTaskId}
+              setEditingTaskId={setEditingTaskId}
+              editingTaskDescription={editingTaskDescription}
+              setEditingTaskDescription={setEditingTaskDescription}
+            />
             {provided.placeholder}
-            
+
             {inputAddTask && (
               <section className="w-full bg-[#1a1b1f] rounded-lg text-[#fff] py-3 lg:px-[14px] px-2 mb-3">
                 <textarea
@@ -104,9 +75,7 @@ const Card = ({ columnTitle }) => {
 
             {columnTitle === "Progress" && (
               <button
-                className={`flex items-center font-main justify-between w-full mt-2 bg-[#c3dafa] text-[#4c6bd9] rounded p-1 text-[12px] lg:text-base lg:px-4 lg:py-2 ${
-                  inputAddTask ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`flex items-center font-main justify-between w-full mt-2 bg-[#c3dafa] text-[#4c6bd9] rounded p-1 text-[12px] lg:text-base lg:px-4 lg:py-2 ${inputAddTask ? "opacity-50 cursor-not-allowed" : ""}`}
                 onClick={() => {
                   if (!inputAddTask) setInputAddTask(true);
                 }}
@@ -119,13 +88,13 @@ const Card = ({ columnTitle }) => {
 
             {inputAddTask && (
               <div className="flex lg:flex-row lg:gap-2 flex-col">
-              <button
-                className="mt-2 lg:px-4 lg:py-2 text-[12px] lg:text-base font-main w-full  text-start bg-[#4caf50] text-white rounded p-1"
-                onClick={addTask}
-              >
-                Salvar Tarefa
-              </button>
-              <button
+                <button
+                  className="mt-2 lg:px-4 lg:py-2 text-[12px] lg:text-base font-main w-full text-start bg-[#4caf50] text-white rounded p-1"
+                  onClick={addTask}
+                >
+                  Salvar Tarefa
+                </button>
+                <button
                   className="mt-2 lg:px-4 lg:py-2 text-[12px] lg:text-base font-main w-full text-start bg-[#fac3c3] text-[#d94c4c] rounded p-1 cursor-pointer"
                   onClick={cancelTask}
                 >

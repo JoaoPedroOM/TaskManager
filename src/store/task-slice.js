@@ -45,6 +45,14 @@ const taskSlice = createSlice({
       state[`${column.toLowerCase()}Count`]--;
       saveTasksToLocalStorage(state);
     },    
+    editTask(state, action) {
+      const { column, taskId, newDescription } = action.payload;
+      const taskIndex = state.columns[column].findIndex(task => task.id === taskId);
+      if (taskIndex !== -1) {
+        state.columns[column][taskIndex].description = newDescription;
+        saveTasksToLocalStorage(state);
+      }
+    },       
     moveTask(state, action) {
       const { sourceColumn, destinationColumn, sourceIndex, destinationIndex } = action.payload;
 
