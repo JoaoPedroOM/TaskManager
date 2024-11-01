@@ -49,7 +49,10 @@ const Card = ({ columnTitle }) => {
     setTaskDescription("");
   }
 
-
+  function deleteTask(taskId) {
+    dispatch(taskActions.removeTask({ column: columnTitle, taskId }));
+  }
+  
   return (
     <section className="lg:w-full w-1/3 h-screen rounded-lg">
       <h2 className="font-titles text-[12px] lg:text-base text-[#d0cbc6] font-bold lg:m-5 m-1">
@@ -78,6 +81,7 @@ const Card = ({ columnTitle }) => {
                     {...provided.dragHandleProps}
                     ref={provided.innerRef}
                     className="w-full text-wrap break-words text-[12px] lg:text-base min-w-[70px] bg-[#1a1b1f] rounded-lg text-[#fff] py-3 px-[14px] mb-3"
+                    onDoubleClick={() => deleteTask(task.id)} 
                   >
                     {task.description}
                   </section>
