@@ -4,9 +4,11 @@ import './index.css'
 import App from './App.jsx'
 import { Provider } from 'react-redux'
 import store from "./store/index.js"
+import Home from './Pages/Home.jsx'
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <App />
+    {/* <App /> */}
+    <Home/>
   </Provider>,
 )
