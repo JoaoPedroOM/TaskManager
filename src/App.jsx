@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Card from "./components/Card";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,13 +12,24 @@ import Logout from '@mui/icons-material/Logout';
 import { Toaster, toast } from 'sonner'
 import { userActions } from "./store/user-slice";
 import { getAuth, signOut } from "firebase/auth";
+import { loadTasksFromFirestore } from "./store/task-slice";
 
 const App = () => {
   const auth = getAuth();
   const dispatch = useDispatch();
+
   const dados = useSelector((state) => state.user.dados);
+  const tasksStatus = useSelector((state) => state.task.status);
+  const tasksError = useSelector((state) => state.task.error);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    if (tasksStatus === 'idle') {
+      dispatch(loadTasksFromFirestore());
+    }
+  }, [tasksStatus, dispatch]);
 
   function onDragEnd(result) {
     const { source, destination } = result;

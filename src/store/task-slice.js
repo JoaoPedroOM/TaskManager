@@ -1,41 +1,51 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { db, doc, setDoc, getDoc } from "../../firebase"; 
 
-const loadTasksFromLocalStorage = () => {
-  const storedTasks = localStorage.getItem("tasks");
-  const parsedTasks = storedTasks ? JSON.parse(storedTasks) : {};
-  return {
-    columns: parsedTasks.columns || { Progress: [], Review: [], Completed: [] },
-    progressCount: parsedTasks.progressCount || 0,
-    reviewCount: parsedTasks.reviewCount || 0,
-    completedCount: parsedTasks.completedCount || 0,
-  };
-};
-
-
-const saveTasksToLocalStorage = (state) => {
-  localStorage.setItem("tasks", JSON.stringify(state));
-};
-
-const initialState = loadTasksFromLocalStorage() || {
-  columns: {
-    Progress: [],
-    Review: [],
-    Completed: [],
-  },
-  progressCount: 0,
-  reviewCount: 0,
-  completedCount: 0,
-};
+export const loadTasksFromFirestore = createAsyncThunk(
+  'tasks/loadTasks',
+  async () => {
+    const taskDocRef = doc(db, "Tasks", "taskId");
+    try {
+      const docSnap = await getDoc(taskDocRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      } else {
+        return {
+          columns: { Progress: [], Review: [], Completed: [] },
+          progressCount: 0,
+          reviewCount: 0,
+          completedCount: 0,
+        };
+      }
+    } catch (error) {
+      console.error("Error loading tasks from Firestore: ", error);
+      return {
+        columns: { Progress: [], Review: [], Completed: [] },
+        progressCount: 0,
+        reviewCount: 0,
+        completedCount: 0,
+      };
+    }
+  }
+);
 
 const taskSlice = createSlice({
   name: "task",
-  initialState,
+  initialState: {
+    columns: { Progress: [], Review: [], Completed: [] },
+    progressCount: 0,
+    reviewCount: 0,
+    completedCount: 0,
+    status: 'idle',
+    error: null,
+  },
   reducers: {
     addNewTask(state, action) {
       const { column, task } = action.payload;
       state.columns[column].unshift(task);
       state[`${column.toLowerCase()}Count`]++;
-      saveTasksToLocalStorage(state);
+
+      saveTasksToFirestore(state); 
     },
     removeTask(state, action) {
       const { column, taskId } = action.payload;
@@ -43,16 +53,18 @@ const taskSlice = createSlice({
         (task) => task.id !== taskId
       );
       state[`${column.toLowerCase()}Count`]--;
-      saveTasksToLocalStorage(state);
-    },    
+      
+      saveTasksToFirestore(state); 
+    },
     editTask(state, action) {
       const { column, taskId, newDescription } = action.payload;
       const taskIndex = state.columns[column].findIndex(task => task.id === taskId);
       if (taskIndex !== -1) {
         state.columns[column][taskIndex].description = newDescription;
-        saveTasksToLocalStorage(state);
+
+        saveTasksToFirestore(state); 
       }
-    },       
+    },
     moveTask(state, action) {
       const { sourceColumn, destinationColumn, sourceIndex, destinationIndex } = action.payload;
 
@@ -64,10 +76,41 @@ const taskSlice = createSlice({
         state[`${destinationColumn.toLowerCase()}Count`]++;
       }
 
-      saveTasksToLocalStorage(state);
+      saveTasksToFirestore(state); 
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loadTasksFromFirestore.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(loadTasksFromFirestore.fulfilled, (state, action) => {
+        state.columns = action.payload.columns;
+        state.progressCount = action.payload.progressCount;
+        state.reviewCount = action.payload.reviewCount;
+        state.completedCount = action.payload.completedCount;
+        state.status = 'succeeded';
+      })
+      .addCase(loadTasksFromFirestore.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
+  },
 });
+
+const saveTasksToFirestore = async (state) => {
+  const taskDocRef = doc(db, "Tasks", "taskId");
+  try {
+    await setDoc(taskDocRef, {
+      columns: state.columns,
+      progressCount: state.progressCount,
+      reviewCount: state.reviewCount,
+      completedCount: state.completedCount,
+    });
+  } catch (error) {
+    console.error("Error saving tasks to Firestore: ", error);
+  }
+};
 
 export const taskActions = taskSlice.actions;
 export default taskSlice;
