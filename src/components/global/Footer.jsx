@@ -17,12 +17,12 @@ const Footer = () => {
           </a>
           <ul className="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-400 sm:mb-0">
             <li>
-              <a href="https://www.linkedin.com/in/joaopedroom/" className="hover:underline me-4 md:me-6">
+              <a href="https://www.linkedin.com/in/joaopedroom/" target="_blank" className="hover:underline me-4 md:me-6">
                 Sobre
               </a>
             </li>
             <li>
-              <a href="https://github.com/JoaoPedroOM" className="hover:underline">
+              <a href="https://github.com/JoaoPedroOM" target="_blank" className="hover:underline">
                 Contato
               </a>
             </li>
@@ -31,7 +31,7 @@ const Footer = () => {
         <hr className="my-6 border-gray-700 sm:mx-auto dark:border-gray-700 lg:my-8" />
         <span className="block text-sm text-gray-400 sm:text-center">
           © 2024{" "}
-          <a href="https://github.com/JoaoPedroOM" className="hover:underline">
+          <a href="https://github.com/JoaoPedroOM" target="_blank" className="hover:underline">
             João Pedro™
           </a>
           . All Rights Reserved.
