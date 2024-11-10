@@ -15,7 +15,6 @@ dist-ssr
 # Ambiente
 .env
 firebase-debug.log
-firebase.js
 
 # Editor directories and files
 .vscode/*
