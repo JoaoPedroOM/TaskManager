@@ -11,6 +11,7 @@ import { Navigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { userActions } from "../store/user-slice";
+import { loadTasksFromFirestore } from "../store/task-slice";
 
 // Configuração do Firebase
 const firebaseConfig = {
@@ -43,8 +44,11 @@ const Logar = () => {
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
+          uid: user.uid,
         })
       );
+
+      dispatch(loadTasksFromFirestore(user.uid));
     } catch (error) {
       toast.error("Erro ao fazer login com Google: " + error.message);
     }
@@ -60,6 +64,7 @@ const Logar = () => {
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
+          uid: user.uid,
         })
       );
     } catch (error) {

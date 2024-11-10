@@ -26,31 +26,33 @@ const App = () => {
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    if (tasksStatus === 'idle') {
-      dispatch(loadTasksFromFirestore());
+    if (tasksStatus === 'idle' && dados.uid) {
+      dispatch(loadTasksFromFirestore(dados.uid));
     }
-  }, [tasksStatus, dispatch]);
+  }, [tasksStatus, dados.uid, dispatch]); 
+  
 
   function onDragEnd(result) {
     const { source, destination } = result;
-
+    const uid = dados.uid;
     if (!destination) return;
-
+  
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
-    )
-      return;
-
+    ) return;
+  
     dispatch(
       taskActions.moveTask({
         sourceColumn: source.droppableId,
         destinationColumn: destination.droppableId,
         sourceIndex: source.index,
         destinationIndex: destination.index,
+        uid, 
       })
     );
   }
+  
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -65,6 +67,7 @@ const App = () => {
     try {
       await signOut(auth);
       dispatch(userActions.logout());
+      dispatch(taskActions.clearTasks());
     } catch (error) {
       toast.error("Erro ao sair: " + error.message);
     }

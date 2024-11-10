@@ -7,6 +7,7 @@ import TaskList from "./TaskList"
 
 const Card = ({ columnTitle }) => {
   const tasks = useSelector((state) => state.task.columns?.[columnTitle] || []);
+  const dados = useSelector((state) => state.user.dados);
   const dispatch = useDispatch();
 
   const [inputAddTask, setInputAddTask] = useState(false);
@@ -25,12 +26,13 @@ const Card = ({ columnTitle }) => {
   };
 
   const addTask = () => {
-    if (taskDescription.trim()) {
+    if (taskDescription.trim() && dados.uid) {
       const newTask = {
         id: Date.now(),
         description: taskDescription,
+        uid: dados.uid
       };
-      dispatch(taskActions.addNewTask({ column: columnTitle, task: newTask }));
+      dispatch(taskActions.addNewTask({ column: columnTitle, task: newTask, uid: dados.uid }));
       setTaskDescription("");
       setInputAddTask(false);
     }
@@ -58,6 +60,7 @@ const Card = ({ columnTitle }) => {
               setEditingTaskId={setEditingTaskId}
               editingTaskDescription={editingTaskDescription}
               setEditingTaskDescription={setEditingTaskDescription}
+              uid={dados.uid}
             />
             {provided.placeholder}
 

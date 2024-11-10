@@ -3,7 +3,15 @@ import { Draggable } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
 import { taskActions } from "../store/task-slice";
 
-const TaskList = ({ tasks, columnTitle, editingTaskId, setEditingTaskId, editingTaskDescription, setEditingTaskDescription }) => {
+const TaskList = ({
+  tasks,
+  columnTitle,
+  editingTaskId,
+  setEditingTaskId,
+  editingTaskDescription,
+  setEditingTaskDescription,
+  uid,
+}) => {
   const dispatch = useDispatch();
   const textareaRef = useRef(null);
   const [clickTimeout, setClickTimeout] = React.useState(null);
@@ -31,15 +39,38 @@ const TaskList = ({ tasks, columnTitle, editingTaskId, setEditingTaskId, editing
   };
 
   const deleteTask = (taskId) => {
-    dispatch(taskActions.removeTask({ column: columnTitle, taskId }));
+    dispatch(
+      taskActions.removeTask({
+        column: columnTitle,
+        taskId,
+        uid,
+      })
+    );
   };
 
   useEffect(() => {
     if (editingTaskId !== null && textareaRef.current) {
       textareaRef.current.focus();
-      textareaRef.current.setSelectionRange(editingTaskDescription.length, editingTaskDescription.length);
+      textareaRef.current.setSelectionRange(
+        editingTaskDescription.length,
+        editingTaskDescription.length
+      );
     }
-  }, [editingTaskId]);
+  }, [editingTaskId, editingTaskDescription]);
+
+  const saveTaskDescription = () => {
+    if (editingTaskDescription.trim()) {
+      dispatch(
+        taskActions.editTask({
+          column: columnTitle,
+          taskId: editingTaskId,
+          newDescription: editingTaskDescription,
+          uid,
+        })
+      );
+    }
+    setEditingTaskId(null);
+  };
 
   return (
     <>
@@ -50,7 +81,9 @@ const TaskList = ({ tasks, columnTitle, editingTaskId, setEditingTaskId, editing
               {...provided.draggableProps}
               {...provided.dragHandleProps}
               ref={provided.innerRef}
-              className={`w-full text-wrap break-words text-[12px] lg:text-base min-w-[70px] bg-[#1a1b1f] rounded-lg text-[#fff] py-3 px-[14px] mb-3 ${editingTaskId === task.id ? 'column--highlight' : ''}`}
+              className={`w-full text-wrap break-words text-[12px] lg:text-base min-w-[70px] bg-[#1a1b1f] rounded-lg text-[#fff] py-3 px-[14px] mb-3 ${
+                editingTaskId === task.id ? "column--highlight" : ""
+              }`}
               onDoubleClick={() => handleTaskDoubleClick(task.id)}
               onClick={() => handleTaskClick(task)}
             >
@@ -60,17 +93,11 @@ const TaskList = ({ tasks, columnTitle, editingTaskId, setEditingTaskId, editing
                   ref={textareaRef}
                   value={editingTaskDescription}
                   onChange={(e) => setEditingTaskDescription(e.target.value)}
-                  onBlur={() => {
-                    if (editingTaskDescription.trim()) {
-                      dispatch(taskActions.editTask({ column: columnTitle, taskId: task.id, newDescription: editingTaskDescription }));
-                    }
-                    setEditingTaskId(null);
-                  }}
+                  onBlur={saveTaskDescription}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      dispatch(taskActions.editTask({ column: columnTitle, taskId: task.id, newDescription: editingTaskDescription }));
-                      setEditingTaskId(null);
+                      saveTaskDescription();
                     }
                   }}
                 />
