@@ -42,7 +42,7 @@ const Home = () => {
             )}
             <img
               className={`overflow-x-visible rounded-sm border border-[#a9abad] shadow-2xl transition-opacity duration-500 ${isLoading ? "opacity-0" : "opacity-100"}`}
-              src="https://portfolio-joao-pedro.vercel.app/assets/taskmanager-lhL2Rm88.png"
+              src="https://portfolio-joao-pedro.vercel.app/assets/taskmanager-BsQXocAk.png"
               onLoad={handleImageLoad}
               alt="Task Manager Preview"
             />
